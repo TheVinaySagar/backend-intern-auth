@@ -1,0 +1,393 @@
+{
+  "info": {
+    "name": "LawVriksh Backend Auth API - Postman Demonstration",
+    "description": "Comprehensive demonstration of JWT Authentication API with Google OAuth integration showing authorized vs unauthorized calls",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. OAuth Flow",
+      "description": "Demonstrates the complete OAuth authentication flow",
+      "item": [
+        {
+          "name": "Step 1: Google OAuth Authorization URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/google",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "google"]
+            },
+            "description": "Initiates Google OAuth flow. This will redirect to Google's authorization server.\n\nExpected Response: 302 redirect to Google OAuth consent screen"
+          },
+          "response": [
+            {
+              "name": "OAuth Redirect Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/google",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "google"]
+                }
+              },
+              "status": "Found",
+              "code": 302,
+              "header": [
+                {
+                  "key": "Location",
+                  "value": "https://accounts.google.com/oauth/v2/auth?response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fgoogle%2Fcallback&scope=profile%20email&client_id=YOUR_CLIENT_ID"
+                }
+              ],
+              "body": "Found. Redirecting to https://accounts.google.com/oauth/v2/auth..."
+            }
+          ]
+        },
+        {
+          "name": "Step 2: OAuth Callback (Success)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/google/callback?code=4/0AeanS0ZjHZ9qQ...",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "google", "callback"],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "4/0AeanS0ZjHZ9qQ...",
+                  "description": "Authorization code from Google (example)"
+                }
+              ]
+            },
+            "description": "Handles the OAuth callback with authorization code from Google.\n\nExpected Response: 200 with JWT token"
+          },
+          "response": [
+            {
+              "name": "Successful Authentication",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/google/callback?code=4/0AeanS0ZjHZ9qQ...",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "google", "callback"],
+                  "query": [
+                    {
+                      "key": "code",
+                      "value": "4/0AeanS0ZjHZ9qQ..."
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Authentication successful\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzllMWY4ZjA5YTQyMDAzNDU2NzEyMyIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTczNjExOTI4OCwiZXhwIjoxNzM2MjA1Njg4fQ.example_signature\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Unauthorized Access",
+      "description": "Demonstrates unauthorized calls without JWT token",
+      "item": [
+        {
+          "name": "Get Posts (No Token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Attempt to access protected endpoint without authentication token.\n\nExpected Response: 401 Unauthorized"
+          },
+          "response": [
+            {
+              "name": "Unauthorized - No Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/posts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "posts"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Unauthorized\",\n  \"message\": \"No token provided\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Posts (Invalid Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid_token_here",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Attempt to access protected endpoint with invalid JWT token.\n\nExpected Response: 401 Unauthorized"
+          },
+          "response": [
+            {
+              "name": "Unauthorized - Invalid Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer invalid_token_here"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/posts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "posts"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Unauthorized\",\n  \"message\": \"Invalid token\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Posts (Malformed Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "InvalidBearer token_without_bearer_prefix",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Attempt to access protected endpoint with malformed authorization header.\n\nExpected Response: 401 Unauthorized"
+          },
+          "response": [
+            {
+              "name": "Unauthorized - Malformed Header",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "InvalidBearer token_without_bearer_prefix"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/posts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "posts"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Unauthorized\",\n  \"message\": \"No token provided\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Authorized Access",
+      "description": "Demonstrates authorized calls with valid JWT token",
+      "item": [
+        {
+          "name": "Get Posts (Valid Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Access protected endpoint with valid JWT token obtained from OAuth flow.\n\nExpected Response: 200 with posts data"
+          },
+          "response": [
+            {
+              "name": "Successful Access",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzllMWY4ZjA5YTQyMDAzNDU2NzEyMyIsImVtYWlsIjoidXNlckBleGFtcGxlLmNvbSIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTczNjExOTI4OCwiZXhwIjoxNzM2MjA1Njg4fQ.example_signature"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/posts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "posts"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"post_id\": 1,\n      \"title\": \"Understanding Constitutional Law in India\",\n      \"contentSnippet\": \"Constitutional law forms the foundation of legal system in India. This article explores the fundamental principles...\"\n    },\n    {\n      \"post_id\": 2,\n      \"title\": \"Corporate Law Essentials for Startups\",\n      \"contentSnippet\": \"Starting a business requires understanding various legal compliance requirements. Here's a comprehensive guide...\"\n    },\n    {\n      \"post_id\": 3,\n      \"title\": \"Intellectual Property Rights in Digital Age\",\n      \"contentSnippet\": \"With the rise of digital technologies, protecting intellectual property has become more challenging...\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Error Scenarios",
+      "description": "Demonstrates various error scenarios and server responses",
+      "item": [
+        {
+          "name": "Server Error Simulation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "posts"]
+            },
+            "description": "Example of how server errors are handled.\n\nExpected Response: 500 Internal Server Error (when server issues occur)"
+          },
+          "response": [
+            {
+              "name": "Internal Server Error",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer valid_token_here"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/posts",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "posts"]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"error\": \"Internal Server Error\",\n  \"message\": \"Unable to retrieve posts\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pre-request script to log request details",
+          "console.log('Making request to:', pm.request.url.toString());",
+          "console.log('Method:', pm.request.method);",
+          "console.log('Headers:', pm.request.headers.toObject());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Test script to validate responses",
+          "pm.test('Response has correct Content-Type', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});",
+          "",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Extract JWT token from successful auth callback",
+          "if (pm.response.code === 200 && pm.response.json().token) {",
+          "    pm.environment.set('jwt_token', pm.response.json().token);",
+          "    console.log('JWT token saved to environment variable');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Base URL for the API server"
+    },
+    {
+      "key": "jwt_token",
+      "value": "YOUR_JWT_TOKEN_HERE",
+      "type": "string",
+      "description": "JWT token obtained from OAuth authentication. This will be automatically set after successful login."
+    }
+  ]
+}
